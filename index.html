@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunlight Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <h1>Sunlight Tracker for Bus Routes</h1>
+    <div>
+        <label for="start">Start City:</label>
+        <input type="text" id="start" placeholder="e.g., Seattle, WA">
+    </div>
+    <div>
+        <label for="end">End City:</label>
+        <input type="text" id="end" placeholder="e.g., Bellevue, WA">
+    </div>
+    <div>
+        <label for="time">Date & Time:</label>
+        <input type="datetime-local" id="time">
+    </div>
+    <button onclick="trackSunlight()">Track Sunlight</button>
+    <div id="map" style="height: 400px; width: 80%; margin: 20px auto;"></div>
+    <p id="result">Result will appear here.</p>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
