@@ -16,7 +16,8 @@ async function trackSunlight() {
   try {
     const start = document.getElementById("start").value.trim();
     const end = document.getElementById("end").value.trim();
-    const timeStr = document.getElementById("time").value;
+    const timeStr = document.getElementById("time").value; // datetime-local string
+
     if (!start || !end || !timeStr) {
       document.getElementById("result").innerText = "Please fill all fields.";
       return;
@@ -29,44 +30,46 @@ async function trackSunlight() {
       return;
     }
 
-    // Draw a simple straight polyline between start and end
+    // Draw a simple straight polyline between start and end 
     routeLayer.clearLayers();
     const route = [startCoords, endCoords];
     L.polyline(route, { color: 'blue' }).addTo(routeLayer);
     map.fitBounds(L.polyline(route).getBounds());
 
-    // Use the midpoint
+    // Use the midpoint(cause its simple and fast) and compute exact sun position with SunCalc
     const midLat = (startCoords[0] + endCoords[0]) / 2;
     const midLng = (startCoords[1] + endCoords[1]) / 2;
 
-  
+    // Convert datetime-local string to a js date 
     const date = new Date(timeStr);
     if (isNaN(date.getTime())) {
       document.getElementById("result").innerText = "Invalid date/time.";
       return;
     }
 
-
+   //to make sure that suncalc is added
     if (typeof SunCalc === 'undefined') {
       document.getElementById("result").innerText = "SunCalc library missing. Add its script in HTML.";
       return;
     }
 
-  
+    // SunCalc returns azimuth (radians) and altitude (radians)
+    // azimuth: angle measured from south, positive westwards , it is just convention 
     const pos = SunCalc.getPosition(date, midLat, midLng);
     const altitude = pos.altitude; // radians
-    const azimuthRad = pos.azimuth; 
+    const azimuthRad = pos.azimuth; // radians 
 
-
+    // Convert SunCalc azimuth to degrees-from-north (0 = north, 90 = east, 180 = south, 270 = west)
+    // SunCalc azimuth 0 = south, -pi/2 = east, +pi/2 = west
     let sunDegFromNorth = (180 + (azimuthRad * 180 / Math.PI)) % 360;
 
-
+    // Compute route heading (degrees from north) from start -> end
     const heading = calculateBearing(startCoords[0], startCoords[1], endCoords[0], endCoords[1]);
 
-
+    // Relative angle of sun with respect to travel heading (0..360)
     const relativeAngle = (sunDegFromNorth - heading + 360) % 360;
 
-    // If sun below horizon (altitude <= 0) 
+    //If sun below horizon (altitude <= 0) 
     if (altitude <= 0) {
       document.getElementById("result").innerText = "Sun is below horizon at this time — either side is fine.";
       return;
@@ -78,7 +81,7 @@ async function trackSunlight() {
       ? "Sun is mostly on the right — sit on the left for shade."
       : "Sun is mostly on the left — sit on the right for shade.";
 
-  
+
     document.getElementById("result").innerText =
       `${recommendation} (sun azimuth: ${Math.round(sunDegFromNorth)}°, heading: ${Math.round(heading)}°)`;
 
@@ -88,7 +91,7 @@ async function trackSunlight() {
   }
 }
 
-
+// Simple Nominatim geocode -> returns [lat, lon] or null
 async function geocode(location) {
   try {
     const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`);
@@ -102,7 +105,7 @@ async function geocode(location) {
   }
 }
 
-// (degrees)
+// Bearing (degrees)
 function calculateBearing(lat1, lng1, lat2, lng2) {
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const lat1Rad = lat1 * Math.PI / 180;
