@@ -76,10 +76,11 @@ async function trackSunlight() {
     }
 
     // Decide side: sun on right if relativeAngle in (0,180), left if (180,360)
-    const side = (relativeAngle > 180) ? 'right' : 'left';
-    const recommendation = (side === 'right')
-      ? "Sun is mostly on the right — sit on the left for shade."
-      : "Sun is mostly on the left — sit on the right for shade.";
+    const side = (relativeAngle > 180) ? 'left' : 'right';
+const recommendation = (side === 'left')
+  ? "Sun is mostly on the left — sit on the right for shade."
+  : "Sun is mostly on the right — sit on the left for shade.";
+
 
 
     document.getElementById("result").innerText =
